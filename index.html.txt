@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>はなさん最終形態 判定サイト</title>
+<style>
+  body { background: black; color: #00eaff; text-align: center; font-family: sans-serif; padding-top: 50px; margin: 0; overflow: hidden; transition: background 0.8s; }
+  #stage { height: 180px; display: flex; justify-content: center; align-items: flex-end; margin: 40px 0; }
+  .hana-block { position: relative; transition: all 0.4s ease-out; transform-origin: bottom center; }
+  .head { width: 30px; height: 30px; background: #ffdbac; border: 2px solid #333; margin: 0 auto; }
+  .body-part { width: 40px; height: 45px; background: #00eaff; border: 2px solid #333; margin: 0 auto; }
+  .grad-cap { position: absolute; top: -12px; left: 5px; width: 30px; height: 8px; background: #222; display: none; }
+  .aura { position: absolute; top: -30%; left: -30%; width: 160%; height: 160%; background: radial-gradient(circle, rgba(0,234,255,0.4) 0%, transparent 70%); border-radius: 50%; filter: blur(10px); opacity: 0; transition: 0.5s; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+  button { background: #111; color: #00eaff; border: 2px solid #00eaff; padding: 15px 30px; font-size: 18px; cursor: pointer; box-shadow: 0 0 10px #00eaff; }
+  #message { margin-top: 40px; font-size: 22px; font-weight: bold; min-height: 1.5em; }
+  .petal { position: absolute; background-color: #ffc0cb; border-radius: 150% 0 150% 0; pointer-events: none; animation: fall linear forwards; }
+  @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+  .vibrate { animation: vib 0.1s infinite; }
+  @keyframes vib { 0% { transform: translate(0,0); } 50% { transform: translate(3px,3px); } 100% { transform: translate(-3px,-3px); } }
+</style>
+</head>
+<body id="bg">
+  <h1>🎓 はなさん最終形態 判定</h1>
+  <div id="stage">
+    <div id="hana" class="hana-block">
+      <div id="aura" class="aura"></div>
+      <div id="cap" class="grad-cap"></div>
+      <div class="head"></div>
+      <div class="body-part"></div>
+    </div>
+  </div>
+  <button onclick="evolve()">進化させる</button>
+  <div id="message"></div>
+<script>
+let level = 0;
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playTone(freq) {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.6);
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+}
+function createPetals(num) {
+  for(let i=0; i<num; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.style.width = p.style.height = Math.random()*10+5 + 'px';
+    p.style.left = Math.random()*100 + 'vw';
+    p.style.animationDuration = (Math.random()*2+2) + 's';
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 4000);
+  }
+}
+function evolve() {
+  level++;
+  const messages = ["通常のはなさん。","クール度が20%上昇。","オーラが見え始めた。","周囲が静まり返る。","後輩がひれ伏す。","伝説クラス到達。","次のステージへ進学完了。","卒業おめでとう。最強。"];
+  const msgDiv = document.getElementById("message");
+  const hana = document.getElementById("hana");
+  const aura = document.getElementById("aura");
+  const cap = document.getElementById("cap");
+  const bg = document.getElementById("bg");
+  if (level <= messages.length) {
+    msgDiv.innerText = messages[level-1];
+    playTone(200 + (level * 100));
+    hana.style.transform = `scale(${1 + (level * 0.15)})`;
+    if (level >= 3) aura.style.opacity = "1";
+    if (level >= 5) { bg.classList.add("vibrate"); setTimeout(() => bg.classList.remove("vibrate"), 200); }
+    createPetals(level * 4);
+    if (level === 8) { cap.style.display = "block"; bg.style.background = "#1a000d"; msgDiv.style.color = "#ff69b4"; createPetals(150); }
+  } else { msgDiv.innerText = "これ以上進化できません。完成体です。"; }
+}
+</script>
+</body>
+</html>
